@@ -3,6 +3,7 @@ import { products } from "./data.js";
 import displayProducts from "./displayProducts.js";
 import displaySingleProduct from "./displaySingleProduct.js";
 displayProducts(products);
+
 const navbar = document.querySelector(".navbar");
 
 // category buttons
@@ -17,30 +18,39 @@ categoryBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     if (btn.textContent === "all") {
       displayProducts(products);
-      return;
+    } else {
+      displayProducts(
+        products.filter((item) => item.category === btn.textContent)
+      );
     }
-    displayProducts(
-      products.filter((item) => item.category === btn.textContent)
-    );
+
+    // modal popup
+    popup();
+    // cart
+    addCart();
   });
 });
 
 // modal popup
-const singleProduct = document.querySelector(".single-product-container");
-const bigBtns = document.querySelectorAll(".big-btn");
-bigBtns.forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    const id = e.currentTarget.dataset.id;
-    singleProduct.classList.add("show-modal");
-    navbar.classList.add("show-layout");
-    displaySingleProduct(id);
+function popup() {
+  const singleProduct = document.querySelector(".single-product-container");
+  const bigBtns = document.querySelectorAll(".big-btn");
+  bigBtns.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.id;
+      singleProduct.classList.add("show-modal");
+      navbar.classList.add("show-layout");
+      displaySingleProduct(id);
+    });
   });
-});
-const closeModal = document.querySelector(".close-modal");
-closeModal.addEventListener("click", () => {
-  singleProduct.classList.remove("show-modal");
-  navbar.classList.remove("show-layout");
-});
+  const closeModal = document.querySelector(".close-modal");
+  closeModal.addEventListener("click", () => {
+    singleProduct.classList.remove("show-modal");
+    navbar.classList.remove("show-layout");
+  });
+}
+
+popup();
 
 // cart
 const cart = document.querySelector(".cart-icon");
@@ -58,19 +68,20 @@ closeBtn.addEventListener("click", () => {
 
 const countProduct = document.querySelector(".count");
 const cartDetail = document.querySelector(".cart-detail");
-const cartBtns = document.querySelectorAll(".cart-btn");
-const totalPrice = document.querySelector(".total-price span");
 let count = 0;
+const totalPrice = document.querySelector(".total-price span");
 
-cartBtns.forEach((btn) => {
-  btn.addEventListener("click", (e) => {
-    count++;
-    countProduct.textContent = count;
-    const id = e.currentTarget.dataset.id;
-    const product = products.find((product) => product.id.toString() === id);
-    const article = document.createElement("article");
-    article.setAttribute("class", "cart-product");
-    article.innerHTML = `
+function addCart() {
+  const cartBtns = document.querySelectorAll(".cart-btn");
+  cartBtns.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      count++;
+      countProduct.textContent = count;
+      const id = e.currentTarget.dataset.id;
+      const product = products.find((product) => product.id.toString() === id);
+      const article = document.createElement("article");
+      article.setAttribute("class", "cart-product");
+      article.innerHTML = `
         <img src="${product.image}" alt="">
         <div class="cart-product-info">
         <h5>${product.name}</h5>
@@ -83,16 +94,19 @@ cartBtns.forEach((btn) => {
         }
         </div>
         `;
-    cartDetail.appendChild(article);
-    totalPrice.textContent = calculateTotal();
+      cartDetail.appendChild(article);
+      totalPrice.textContent = calculateTotal();
+    });
   });
-});
+}
 
-const calculateTotal = () => {
+function calculateTotal() {
   const prices = cartDetail.querySelectorAll(".cart-price");
   let subTotal = 0;
   prices.forEach((price) => {
     subTotal += parseFloat(price.textContent.slice(1));
   });
   return subTotal;
-};
+}
+
+addCart();
